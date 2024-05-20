@@ -12,7 +12,9 @@
 #Python script to run lab instruments and form GUI
 #Version 1.0
 #for questions contact Gavin Fisher at GavinFisherProfessional@gmail.com
+#                  or  Josh Rudfelt at jrudfelt@unr.edu
 #                  or  Sam Hutton   at rhutton@unr.edu
+#                  or  Damian Gimeno at dgimeno@unr.edu
 #------------------------------------------------
 
 #-------------------
@@ -178,8 +180,7 @@ def data_collection(numbersamples, frequency):
         # print(list(task.ai_channels))
         task.ai_channels.add_ai_voltage_chan("Dev1/ai2", terminal_config=TerminalConfiguration(-1), min_val=0,max_val=10) ##initialize data acquisition task. Dev1 is the name of the DAQ, AV2 is the channel the induc is connected to.
         task.ai_channels.add_ai_voltage_chan("Dev1/ai7", terminal_config=TerminalConfiguration(-1), min_val=-1,max_val=10)#For more info on TermConfig see: https://knowledge.ni.com/KnowledgeArticleDetails?id=kA00Z0000019QRZSA2&l=en-US
-        
-        #      and https://www.ni.com/en-us/shop/data-acquisition/sensor-fundamentals/measuring-direct-current-dc-voltage.html
+        # and https://www.ni.com/en-us/shop/data-acquisition/sensor-fundamentals/measuring-direct-current-dc-voltage.html
         # print(list(task.ai_channels))
         task.timing.cfg_samp_clk_timing(rate=frequency, sample_mode=AcquisitionType.FINITE, samps_per_chan=numbersamples)
         
@@ -263,7 +264,7 @@ def csv_output(sensor_data2,pos):
 def pos_get():
     program_parameters.position_get = []
     while program_parameters.is_sampling is True:
-       #print('dentro de posget')
+       #print('Running posget')
        program_parameters.position_get.append(motor.position)  
     # return pos
 
@@ -361,12 +362,12 @@ def execute_cycles(sender):
     
     for cycle in range(number_of_cycles):
       
-        # Obtener las configuraciones de aceleración, velocidad desde la interfaz de usuario
+        # Get acceleration, speed settings from the user interface
         #acceleration = dpg.get_value(accel)
         #velocity = dpg.get_value(velo)
-        # Realizar el ciclo de movimiento y adquisición de datos
-        for i in range(2):  # Realizar el ciclo de movimiento de ida y vuelta
-            # Mover la plataforma hacia la posición objetivo o regreso a la posición inicial
+        # Perform motion cycle and data acquisition.
+        for i in range(2):  # means i is = to 0 then 1
+            # If statement move to target position. Else statement moves back to target position. Light turns on both times
             #motor.set_velocity_parameters(0, acceleration, velocity)
             motor.backlash_distance=backlash
             if i == 0:
@@ -380,10 +381,10 @@ def execute_cycles(sender):
 
                 #if initial_position>target_position:
                # motor.move_to(initial_position+motor.backlash_distance)                                    
-               # print('vuelta')
+               # print('return')
    
 
-            # Realizar la adquisición de datos en tiempo real durante el movimiento
+            # Real-time data acquisition during movement
             if program_parameters.save == True:
                 program_parameters.is_sampling = True
                 program_parameters.liveplot = False
@@ -391,7 +392,7 @@ def execute_cycles(sender):
                 number_of_samples = program_parameters.number_samples
                 sensor_data = data_collection(number_of_samples, frequency)
 
-                # Guardar datos de voltaje y posición
+                # Saving voltage and position data
                 time.sleep(1)
                 csv_output(sensor_data, program_parameters.position_get)
                 
@@ -402,7 +403,7 @@ def execute_cycles(sender):
                 
                 
             
-            #print('fuera de guardando')
+            #print('Done with saving function - fuera de guardando')
             while program_parameters.is_sampling is True:
              time.sleep(0)
             time.sleep(0.5)
@@ -413,7 +414,7 @@ def execute_cycles(sender):
            #   while motor.is_in_motion:     
            #     time.sleep(0)   
 
-        # Volver a la posición inicial antes de continuar al siguiente ciclo
+        #  Return to the starting position before continuing to the next cycle. - Volver a la posición inicial antes de continuar al siguiente ciclo
       #  motor.set_velocity_parameters(0, acceleration, velocity)
        # motor.backlash_distance=0
         #motor.move_to(initial_position)
